@@ -20,40 +20,32 @@ public class CollisionChecker {
         int entityTopRow = entityTopWorldY/gp.tileSize;
         int entityBottomRow = entityBottomWorldY/gp.tileSize;
 
-        int tileNum1, tileNum2;
+        int num1, num2;
 
         switch (entity.direction){
             case "up":
                 entityTopRow = (entityTopWorldY - entity.speed)/gp.tileSize;
-                tileNum1 = gp.tileM.mapTileNum[entityLeftCol][entityTopRow];
-                tileNum2 = gp.tileM.mapTileNum[entityRightCol][entityTopRow];
-                if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
-                    entity.collisionOn = true;
-                }
+                num1 = gp.tileM.mapTileNum[entityLeftCol][entityTopRow];
+                num2 = gp.tileM.mapTileNum[entityRightCol][entityTopRow];
+                if (gp.tileM.tile[num1].collision || gp.tileM.tile[num2].collision) {entity.collisionOn = true;}
                 break;
             case "down":
                 entityBottomRow = (entityBottomWorldY + entity.speed)/gp.tileSize;
-                tileNum1 = gp.tileM.mapTileNum[entityLeftCol][entityBottomRow];
-                tileNum2 = gp.tileM.mapTileNum[entityRightCol][entityBottomRow];
-                if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
-                    entity.collisionOn = true;
-                }
+                num1 = gp.tileM.mapTileNum[entityLeftCol][entityBottomRow];
+                num2 = gp.tileM.mapTileNum[entityRightCol][entityBottomRow];
+                if (gp.tileM.tile[num1].collision || gp.tileM.tile[num2].collision) {entity.collisionOn = true;}
                 break;
             case "left":
                 entityLeftCol = (entityLeftWorldX - entity.speed)/gp.tileSize;
-                tileNum1 = gp.tileM.mapTileNum[entityLeftCol][entityTopRow];
-                tileNum2 = gp.tileM.mapTileNum[entityLeftCol][entityBottomRow];
-                if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
-                    entity.collisionOn = true;
-                }
+                num1 = gp.tileM.mapTileNum[entityLeftCol][entityTopRow];
+                num2 = gp.tileM.mapTileNum[entityLeftCol][entityBottomRow];
+                if (gp.tileM.tile[num1].collision || gp.tileM.tile[num2].collision) {entity.collisionOn = true;}
                 break;
             case "right":
                 entityRightCol = (entityRightWorldX + entity.speed)/gp.tileSize;
-                tileNum1 = gp.tileM.mapTileNum[entityRightCol][entityTopRow];
-                tileNum2 = gp.tileM.mapTileNum[entityRightCol][entityBottomRow];
-                if (gp.tileM.tile[tileNum1].collision || gp.tileM.tile[tileNum2].collision) {
-                    entity.collisionOn = true;
-                }
+                num1 = gp.tileM.mapTileNum[entityRightCol][entityTopRow];
+                num2 = gp.tileM.mapTileNum[entityRightCol][entityBottomRow];
+                if (gp.tileM.tile[num1].collision || gp.tileM.tile[num2].collision) {entity.collisionOn = true;}
                 break;
         }
     }
@@ -71,45 +63,29 @@ public class CollisionChecker {
                     case "up":
                         entity.solidArea.y -= entity.speed;
                         if(entity.solidArea.intersects(gp.obj[i].solidArea)){
-                            if(gp.obj[i].collision){
-                                entity.collisionOn = true;
-                            }
-                            if(player){
-                                index = i;
-                            }
+                            if(gp.obj[i].collision) {entity.collisionOn = true;}
+                            if(player) {index = i;}
                         }
                         break;
                     case "down":
                         entity.solidArea.y += entity.speed;
                         if(entity.solidArea.intersects(gp.obj[i].solidArea)){
-                            if(gp.obj[i].collision){
-                                entity.collisionOn = true;
-                            }
-                            if(player){
-                                index = i;
-                            }
+                            if(gp.obj[i].collision) {entity.collisionOn = true;}
+                            if(player) {index = i;}
                         }
                         break;
                     case "left":
                         entity.solidArea.x -= entity.speed;
                         if(entity.solidArea.intersects(gp.obj[i].solidArea)){
-                            if(gp.obj[i].collision){
-                                entity.collisionOn = true;
-                            }
-                            if(player){
-                                index = i;
-                            }
+                            if(gp.obj[i].collision) {entity.collisionOn = true;}
+                            if(player) {index = i;}
                         }
                         break;
                     case "right":
                         entity.solidArea.x += entity.speed;
                         if(entity.solidArea.intersects(gp.obj[i].solidArea)){
-                            if(gp.obj[i].collision){
-                                entity.collisionOn = true;
-                            }
-                            if(player){
-                                index = i;
-                            }
+                            if(gp.obj[i].collision) {entity.collisionOn = true;}
+                            if(player) {index = i;}
                         }
                         break;
                 }
@@ -153,7 +129,6 @@ public class CollisionChecker {
                         entity.collisionOn = true;
                         index = i;
                     }
-
                 }
 
                 entity.solidArea.x = entity.solidAreaDefaultX;
@@ -165,6 +140,7 @@ public class CollisionChecker {
         return index;
     }
 
+    // check va cham cua Nhan vat
     public boolean checkPlayer(Entity entity){
 
         boolean contactPlayer = false;

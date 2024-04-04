@@ -6,7 +6,7 @@ import java.awt.event.KeyListener;
 public class KeyHandler implements KeyListener {
 
     GamePanel gp;
-    public boolean upPressed, downPressed, leftPressed, rightPressed, enterPressed, spacePressed;
+    public boolean keyUp, keyDown, keyLeft, keyRight, keyAttack, keySkill;
 
     public KeyHandler(GamePanel gp){
         this.gp = gp;
@@ -19,56 +19,31 @@ public class KeyHandler implements KeyListener {
     // da nhan phim
     @Override
     public void keyPressed(KeyEvent e) {
-        int code = e.getKeyCode();
-        if(code == KeyEvent.VK_W){
-            upPressed = true;
+        int key = e.getKeyCode();
+        if(key == KeyEvent.VK_W) {keyUp = true;}
+        if(key == KeyEvent.VK_S) {keyDown = true;}
+        if(key == KeyEvent.VK_A) {keyLeft = true;}
+        if(key == KeyEvent.VK_D) {keyRight = true;}
+        if(key == KeyEvent.VK_H) {keySkill = true;}
+        if(key == KeyEvent.VK_K) {keyAttack = true;}
+        if(key == KeyEvent.VK_P){
+            if(gp.gameState == gp.playState){gp.gameState = gp.menuState;}
+            else if(gp.gameState == gp.menuState){gp.gameState = gp.playState;}
         }
-        if(code == KeyEvent.VK_S){
-            downPressed = true;
-        }
-        if(code == KeyEvent.VK_A){
-            leftPressed = true;
-        }
-        if(code == KeyEvent.VK_D){
-            rightPressed = true;
-        }
-        if(code == KeyEvent.VK_SPACE){
-            spacePressed = true;
-        }
-        if(code == KeyEvent.VK_P){
-            if(gp.gameState == gp.playState){
-                gp.gameState = gp.pauseState;
-            }
-            else if(gp.gameState == gp.pauseState){
-                gp.gameState = gp.playState;
-            }
-        }
-        if(code == KeyEvent.VK_C){
-            gp.gameState = gp.characterState;
-        }
+        if(key == KeyEvent.VK_C){gp.gameState = gp.characterState;}
+
     }
+
     // da phat hanh
     @Override
     public void keyReleased(KeyEvent e) {
         int code = e.getKeyCode();
-        if(code == KeyEvent.VK_W){
-            upPressed = false;
-        }
-        else if(code == KeyEvent.VK_S){
-            downPressed = false;
-        }
-        else if(code == KeyEvent.VK_A){
-            leftPressed = false;
-        }
-        else if(code == KeyEvent.VK_D){
-            rightPressed = false;
-        }
-        else if(code == KeyEvent.VK_SPACE){
-            spacePressed = false;
-        }
-
-        if(code == KeyEvent.VK_C){
-            gp.gameState = gp.playState;
-        }
+        if(code == KeyEvent.VK_W) {keyUp = false;}
+        if(code == KeyEvent.VK_S) {keyDown = false;}
+        if(code == KeyEvent.VK_A) {keyLeft = false;}
+        if(code == KeyEvent.VK_D) {keyRight = false;}
+        if(code == KeyEvent.VK_H) {keySkill = false;}
+        if(code == KeyEvent.VK_K) {keyAttack = false;}
+        if(code == KeyEvent.VK_C) {gp.gameState = gp.playState;}
     }
 }

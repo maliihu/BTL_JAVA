@@ -2,33 +2,24 @@ package entity;
 
 import main.GamePanel;
 import main.KeyHandler;
-import main.UtilityTool;
-import object.OBJ_Chest;
-import object.OBJ_Heart;
-import object.OBJ_Shield;
-import object.OBJ_Weapon;
+import object.*;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.IOException;
-import java.util.Objects;
 
 public class Player extends Entity{
 
     KeyHandler keyH;
-    public final int screenX;
-    public final int screenY;
+    public final int SCREEN_X, SCREEN_Y;
     boolean checkSword = false;
     int hasKey = 0;
 
     public Player(GamePanel gp, KeyHandler keyH){
-
         super(gp);
         this.keyH = keyH;
 
-        screenX = gp.screenWidth/2 - gp.tileSize/2;
-        screenY = gp.screenHeight /2 - gp.tileSize/2;
+        SCREEN_X = gp.screenWidth/2 - gp.tileSize/2;
+        SCREEN_Y = gp.screenHeight /2 - gp.tileSize/2;
         solidArea = new Rectangle(8, 16, 32, 32);
         solidAreaDefaultX = solidArea.x;
         solidAreaDefaultY = solidArea.y;
@@ -44,20 +35,25 @@ public class Player extends Entity{
     public void setDefaultValues(){
         worldX = gp.tileSize * 23;
         worldY = gp.tileSize * 21;
-        speed = 4;
+        defaultSpeed = 4;
+        speed = defaultSpeed;
         direction = "down";
 
         // PLAYER STATUS
         level = 1;
-        maxLife = 6;
-        life = maxLife;
-        exp = 0;
-        nextLevelExp = 5;
+        maxLife = 6; life = maxLife;
+        maxArmor = 10; armor = maxArmor;
+        maxMana = 2; mana = maxMana;
+        exp = 0; nextLevelExp = 5;
         coin = 0;
-        currentWeapon = new OBJ_Weapon(gp);
-        currentShield = new OBJ_Shield(gp);
+
+        currentWeapon = new Weapon(gp);
+        currentShield = new Shield(gp);
         attack = currentWeapon.attackValue;
         defense = currentShield.defenseValue;
+
+        projectile = new Fireball(gp);
+        
     }
 
     public void getPlayerImage(){
@@ -100,16 +96,16 @@ public class Player extends Entity{
     public void update(){
 
 
-        if(keyH.spacePressed && checkSword){
+        if(keyH.keyAttack && checkSword){
             attacking = true;
             attacking();
         }
-        else if(keyH.upPressed || keyH.downPressed || keyH.leftPressed || keyH.rightPressed){
+        else if(keyH.keyUp || keyH.keyDown || keyH.keyLeft || keyH.keyRight){
             attacking = false;
-            if(keyH.upPressed){direction = "up";}
-            else if(keyH.downPressed){direction = "down";}
-            else if(keyH.leftPressed){direction = "left";}
-            else if(keyH.rightPressed){direction = "right";}
+            if(keyH.keyUp){direction = "up";}
+            else if(keyH.keyDown){direction = "down";}
+            else if(keyH.keyLeft){direction = "left";}
+            else if(keyH.keyRight){direction = "right";}
 
             // CHECK TILE COLLISION
             collisionOn = false;
@@ -149,19 +145,19 @@ public class Player extends Entity{
                 }
             }
 
-        //    gp.keyH.enterPressed = false;
 
-            spriteCounter++;
-            // sau mỗi 10s sẽ vẽ img1 hoặc img2 lên hình
-            if(spriteCounter > 12){
-                if(spriteNum == 1){
-                    spriteNum = 2;
-                }
-                else if(spriteNum == 2){
-                    spriteNum = 1;
-                }
-                spriteCounter = 0;
-            }
+        }spriteCounter++;
+        // sau mỗi 10s sẽ vẽ img1 hoặc img2 lên hình
+        if(spriteCounter > 12){
+            if(spriteNum == 1) {spriteNum = 2;}
+            else if(spriteNum == 2) {spriteNum = 1;}
+            spriteCounter = 0;
+        }
+
+        if(gp.keyH.keySkill && !projectile.alive && mana > 0){
+            projectile.set(worldX, worldY, direction, true);
+            gp.projectileList.add(projectile);
+            projectile.checkMana();
         }
 
         // để bật tắt trạng thái invincible
@@ -207,7 +203,7 @@ public class Player extends Entity{
             solidArea.height = attackArea.height;
 
             int monsterIndex = gp.cChecker.checkEntity(this, gp.monster);
-            damageMonster(monsterIndex);
+            damageMonster(monsterIndex, attack);
 
             worldX = currentWorldX;
             worldY = currentWorldY;
@@ -239,12 +235,15 @@ public class Player extends Entity{
                     int x = gp.obj[index].worldX / gp.tileSize;
                     int y = gp.obj[index].worldY / gp.tileSize;
 
-                    gp.obj[index] = new OBJ_Heart(gp);
+                    gp.obj[index] = new Heart(gp);
                     gp.obj[index].worldX = x * gp.tileSize;
                     gp.obj[index].worldY = y * gp.tileSize;
                     break;
                 case "Key":
                     gp.obj[index] = null;
+                    break;
+                case "Shop":
+                    gp.gameState = 5;
                     break;
             }
         }
@@ -256,6 +255,7 @@ public class Player extends Entity{
             System.out.println("Hello NPC");
         }
     }
+
     // va chạm của char với quái
     public void interactMonster(int index){
         if(index != 999){
@@ -270,44 +270,54 @@ public class Player extends Entity{
             if(!invincible){
                 int damage = gp.monster[index].attack - defense;
                 if(damage < 0) damage = 0;
-                life -= damage;
+                armor -= damage;
+                if(armor == 0){
+                    life -= damage;
+                }
                 invincible = true;
             }
         }
     }
-    public void damageMonster(int index){
 
+    public void damageMonster(int index, int attack){
         if(index != 999){
             if(!gp.monster[index].invincible){
+                knockBack(gp.monster[index]);
                 int damage = attack - gp.monster[index].defense;
                 if(damage < 0) damage = 0;
-
                 gp.monster[index].life -= damage;
                 gp.monster[index].invincible = true;
-                //gp.monster[index].damageReaction();
+                gp.monster[index].damageReaction();
 
                 if(gp.monster[index].life <= 0){
+                    gp.monster[index].dying = true;
                     exp += gp.monster[index].exp;
                     checkLevelUp();
-                    gp.monster[index] = null;
+                //    gp.monster[index] = null;
                 }
+
             }
         }
+    }
+    public void knockBack(Entity e){
+        e.direction = direction;
+        e.speed += 10;
+        e.knockBack = true;
     }
     public void checkLevelUp(){
         if(exp >= nextLevelExp){
             level++;
             nextLevelExp *= 2;
             maxLife += 5;
+            life += 5;
             attack++;
             defense++;
-            speed++;
         }
     }
     public void draw(Graphics2D g2){
         BufferedImage image = null;
-        int tempScreenX = screenX;
-        int tempScreenY = screenY;
+        int tempScreenX = SCREEN_X;
+        int tempScreenY = SCREEN_Y;
         switch (direction){
             case "up":
                 if(!attacking){
@@ -315,7 +325,7 @@ public class Player extends Entity{
                     if(spriteNum == 2){image = up2;}
                 }
                 else{
-                    tempScreenY = screenY - gp.tileSize;
+                    tempScreenY = SCREEN_Y - gp.tileSize;
                     if(spriteNum == 1){image = attUp1;}
                     if(spriteNum == 2){image = attUp2;}
                 }
@@ -336,7 +346,7 @@ public class Player extends Entity{
                     if(spriteNum == 2){image = left2;}
                 }
                 else{
-                    tempScreenX = screenX - gp.tileSize;
+                    tempScreenX = SCREEN_X - gp.tileSize;
                     if(spriteNum == 1){image = attLeft1;}
                     if(spriteNum == 2){image = attLeft2;}
                 }
@@ -353,29 +363,20 @@ public class Player extends Entity{
                 break;
         }
 
-
-        // HP PLAYER
         double oneScale = (double)gp.tileSize/maxLife;
         double hpBarValue = oneScale*life;
 
-        // HP BACKGROUND
-        g2.setColor(new Color(35, 35, 35));
-        g2.fillRect(screenX-1, screenY-16, gp.tileSize+2, 12);
+//        // HP BACKGROUND
+//        g2.setColor(new Color(35, 35, 35));
+//        g2.fillRect(screenX-1, screenY-16, gp.tileSize+2, 12);
+//
+//        // HP CURRENT
+//        g2.setColor(new Color(255, 0, 30));
+//        g2.fillRect(screenX, screenY-15, (int)hpBarValue, 10);
 
-        // HP CURRENT
-        g2.setColor(new Color(255, 0, 30));
-        g2.fillRect(screenX, screenY-15, (int)hpBarValue, 10);
+        if(life <= 0) {System.out.println("Game over");}
 
-        if(life <= 0){
-            System.out.println("Game over");
-        }
-
-
-
-
-        if(invincible){
-            g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));
-        }
+        if(invincible) {g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.3f));}
         g2.drawImage(image, tempScreenX, tempScreenY, null);
         // RESET ALPHA
         g2.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 1f));

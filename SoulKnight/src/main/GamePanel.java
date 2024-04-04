@@ -1,53 +1,56 @@
 package main;
 
+import ai.PathFinder;
 import entity.Entity;
 import entity.Player;
 import tile.TileManager;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 
 public class GamePanel extends JPanel implements Runnable {
     final int originalTitleSize = 16; // kich thuoc cua nhan vat va 1 o ban do ( pixel)
     final int scale = 3; // ti le theo man hinh
     public final int tileSize = originalTitleSize * scale;
-    public final int maxScreenCol = 16;
-    public final int maxScreenRow = 12;
+    public final int maxScreenCol = 16, maxScreenRow = 12;
     public final int screenWidth = tileSize * maxScreenCol; // 768 pixels
     public final int screenHeight = tileSize * maxScreenRow; // 576 pixels
 
     // WORLD SETTINGS
-    public final int maxWorldCol = 50;
-    public final int maxWorldRow = 50;
-    public final int worldWidth = tileSize * maxWorldRow;
-    public final int worldHeight = tileSize * maxWorldCol;
+    public final int maxWorldCol = 50, maxWorldRow = 50;
+    public final int worldWidth = tileSize * maxWorldRow, worldHeight = tileSize * maxWorldCol;
 
     // FPS
     int FPS = 60;
 
     // SYSTEM
-    TileManager tileM = new TileManager(this);
+    public TileManager tileM = new TileManager(this);
     public KeyHandler keyH = new KeyHandler(this);
     Thread gameThread;
     public CollisionChecker cChecker = new CollisionChecker(this);
-    public AssetSetter aSetter = new AssetSetter(this);
-    public UI ui = new UI(this);
+    public GameSetup aSetter = new GameSetup(this);
+    public UserInterface ui = new UserInterface(this);
+    public PathFinder pF = new PathFinder(this);
+
 
     // ENTITY AND OBJECT
     public Player player = new Player(this, keyH);
     public Entity[] obj = new Entity[10];
     public Entity[] npc = new Entity[10];
     public Entity[] monster = new Entity[10];
+    public ArrayList<Entity> projectileList  = new ArrayList<>();
     ArrayList<Entity> entityList = new ArrayList<>();
 
     // GAME STATE
     public int gameState;
     public final int playState = 1;
-    public final int pauseState = 2;
+    public final int menuState = 2;
     public final int characterState = 4;
+    public final int shopState = 5;
 
     public GamePanel(){
         this.setPreferredSize(new Dimension(screenWidth, screenHeight));
@@ -60,7 +63,6 @@ public class GamePanel extends JPanel implements Runnable {
         aSetter.setObject();
         aSetter.setNPC();
         aSetter.setMonster();
-
         gameState = playState;
     }
     public void startGameThread(){
@@ -77,25 +79,16 @@ public class GamePanel extends JPanel implements Runnable {
         long drawCount = 0;
 
         while(gameThread != null){
-
             currentTime = System.nanoTime();
-
             delta += (currentTime - lastTime) / drawInterval;
             timer += (currentTime - lastTime);
             lastTime = currentTime;
-
             if(delta >= 1){
                 update();
                 repaint();
                 delta--;
                 drawCount++;
             }
-
-//            if(timer >= 1e9){
-//                System.out.println("FPS:"+drawCount);
-//                drawCount = 0;
-//                timer = 0;
-//            }
         }
     }
     public void update(){
@@ -104,19 +97,29 @@ public class GamePanel extends JPanel implements Runnable {
             player.update();
 
             // NPC
-            for (Entity enNPC : npc) {
-                if (enNPC != null) {
-                    enNPC.update();
-                }
-            }
+            for (Entity e : npc) {if (e != null) {e.update();} }
+
             // MONSTER
-            for(Entity enMonster : monster){
-                if (enMonster != null){
-                    enMonster.update();
+            for(int i = 0; i<monster.length; i++){
+                if(monster[i] != null){
+                    if(monster[i].alive && !monster[i].dying) monster[i].update();
+                    if(!monster[i].alive) monster[i] = null;
                 }
             }
+
+            // PROJECTILE
+            Iterator<Entity> iterator = projectileList.iterator();
+            while (iterator.hasNext()) {
+                Entity e = iterator.next();
+                if (e != null && !e.alive) {
+                    iterator.remove();
+                } else if (e != null) {
+                    e.update();
+                }
+            }
+
         }
-        if (gameState == pauseState){
+        if (gameState == menuState){
             // coming soon
         }
     }
@@ -132,23 +135,13 @@ public class GamePanel extends JPanel implements Runnable {
         // OBJECT AND PLAYER
         entityList.add(player);
 
-        for (Entity value : npc) {
-            if (value != null) {
-                entityList.add(value);
-            }
-        }
+        for (Entity e : npc) {if (e != null) entityList.add(e);}
 
-        for (Entity value : obj) {
-            if (value != null) {
-                entityList.add(value);
-            }
-        }
+        for (Entity e : obj) {if (e != null) entityList.add(e);}
 
-        for (Entity value : monster){
-            if (value != null){
-                entityList.add(value);
-            }
-        }
+        for (Entity e : monster){if (e != null) entityList.add(e);}
+
+        for(Entity e : projectileList){if (e != null) entityList.add(e);}
 
         entityList.sort(new Comparator<Entity>() {
             @Override
@@ -158,13 +151,15 @@ public class GamePanel extends JPanel implements Runnable {
         });
 
         // DRAW
-        for (Entity entity : entityList) {
-            entity.draw(g2);
-        }
+        for (Entity entity : entityList) {entity.draw(g2);}
         entityList.clear();
 
         // UI
-        ui.draw(g2);
+        try {
+            ui.draw(g2);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
 

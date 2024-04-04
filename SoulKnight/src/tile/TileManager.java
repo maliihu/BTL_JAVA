@@ -5,7 +5,6 @@ import main.UtilityTool;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,7 +30,7 @@ public class TileManager {
             while(col < gp.maxWorldCol && row < gp.maxWorldRow){
                 String line = br.readLine();
                 while(col < gp.maxWorldCol){
-                    String numbers[] = line.split(" ");
+                    String[] numbers = line.split(" ");
                     int num = Integer.parseInt(numbers[col]);
                     mapTileNum[col][row] = num;
                     col++;
@@ -43,7 +42,7 @@ public class TileManager {
             }
             br.close();
         }catch (Exception e){
-
+            e.printStackTrace();
         }
     }
     public void getTileImage(){
@@ -76,13 +75,13 @@ public class TileManager {
             int tileNum = mapTileNum[worldCol][worldRow];
             int worldX = worldCol * gp.tileSize;
             int worldY = worldRow * gp.tileSize;
-            int screenX = worldX - gp.player.worldX + gp.player.screenX;
-            int screenY = worldY - gp.player.worldY + gp.player.screenY;
+            int screenX = worldX - gp.player.worldX + gp.player.SCREEN_X;
+            int screenY = worldY - gp.player.worldY + gp.player.SCREEN_Y;
 
-            if(worldX + gp.tileSize > gp.player.worldX - gp.player.screenX &&
-                    worldX - gp.tileSize < gp.player.worldX + gp.player.screenX &&
-                    worldY + gp.tileSize > gp.player.worldY - gp.player.screenY &&
-                    worldY - gp.tileSize < gp.player.worldY + gp.player.screenY){
+            if(worldX + gp.tileSize > gp.player.worldX - gp.player.SCREEN_X &&
+                    worldX - gp.tileSize < gp.player.worldX + gp.player.SCREEN_X &&
+                    worldY + gp.tileSize > gp.player.worldY - gp.player.SCREEN_Y &&
+                    worldY - gp.tileSize < gp.player.worldY + gp.player.SCREEN_Y){
                 g2.drawImage(tile[tileNum].image, screenX, screenY, gp.tileSize, gp.tileSize, null);
             }
 
