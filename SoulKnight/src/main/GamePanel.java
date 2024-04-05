@@ -1,6 +1,5 @@
 package main;
 
-import ai.PathFinder;
 import entity.Entity;
 import entity.Player;
 import tile.TileManager;
@@ -34,8 +33,6 @@ public class GamePanel extends JPanel implements Runnable {
     public CollisionChecker cChecker = new CollisionChecker(this);
     public GameSetup aSetter = new GameSetup(this);
     public UserInterface ui = new UserInterface(this);
-    public PathFinder pF = new PathFinder(this);
-
 
     // ENTITY AND OBJECT
     public Player player = new Player(this, keyH);

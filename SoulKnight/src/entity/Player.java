@@ -57,21 +57,6 @@ public class Player extends Entity{
     }
 
     public void getPlayerImage(){
-
-//        try{
-//
-//            up1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_up_1.png")));
-//            up2 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_up_2.png")));
-//            down1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_down_1.png")));
-//            down2 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_down_2.png")));
-//            left1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_left_1.png")));
-//            left2 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_left_2.png")));
-//            right1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_right_1.png")));
-//            right2 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/player/boy_right_1.png")));
-//
-//        }catch (IOException e){
-//            e.printStackTrace();
-//        }
         up1 = setup("/player/up1", gp.tileSize, gp.tileSize);
         up2 = setup("/player/up2", gp.tileSize, gp.tileSize);
         down1 = setup("/player/down1", gp.tileSize, gp.tileSize);
@@ -363,9 +348,9 @@ public class Player extends Entity{
                 break;
         }
 
-        double oneScale = (double)gp.tileSize/maxLife;
-        double hpBarValue = oneScale*life;
-
+//        double oneScale = (double)gp.tileSize/maxLife;
+//        double hpBarValue = oneScale*life;
+//
 //        // HP BACKGROUND
 //        g2.setColor(new Color(35, 35, 35));
 //        g2.fillRect(screenX-1, screenY-16, gp.tileSize+2, 12);

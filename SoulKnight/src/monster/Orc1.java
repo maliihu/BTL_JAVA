@@ -14,7 +14,6 @@ public class Orc1 extends Entity {
 
     public Orc1(GamePanel gp) {
         super(gp);
-
         this.gp = gp;
         name = "Orc";
         defaultSpeed = 1;
@@ -39,7 +38,6 @@ public class Orc1 extends Entity {
     }
 
     public void getImage(){
-
         try{
             up1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/monster/orc_down_1.png")));
             up2 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/monster/orc_down_2.png")));
@@ -52,11 +50,9 @@ public class Orc1 extends Entity {
         }catch (IOException e){
             e.printStackTrace();
         }
-
     }
 
     public void getPlayerAttackImage(){
-
         try{
             attUp1 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/monster/orc_attack_up_1.png")));
             attUp2 = ImageIO.read(Objects.requireNonNull(getClass().getResourceAsStream("/monster/orc_attack_up_2.png")));
